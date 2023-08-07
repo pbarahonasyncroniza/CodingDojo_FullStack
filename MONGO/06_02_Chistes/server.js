@@ -8,11 +8,11 @@ app.use(express.urlencoded({extended:true}));
 
 require("./server/config/mongoose.config")
 
-// const jokerRouter = require ("./server/routes/jokes.route");
-// jokerRouter(app);
+const jokerRouter = require ("./server/routes/joker.route");
+jokerRouter(app);
 
 
-app.listen( 8000, () =>
+app.listen(8000, () =>
   console.log ("escuchando Puerto 8000")
 )
 

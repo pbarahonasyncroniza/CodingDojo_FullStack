@@ -14,7 +14,7 @@ const App = () => {
         .then((response) => {
           setCharacterData(response.data);
         })
-        .catch((error) => {
+        .catch((error) => {||
           console.log(error);
           setCharacterData(null); // En caso de error, limpiamos los datos del personaje
         })
@@ -35,7 +35,7 @@ const App = () => {
     setInputValue(e.target.value);
   };
 
-  const handleOnChange = (e) => {
+  const handleOnChange = (e) => {|  
     setSelectedOption(e.target.value);
     setCharacterData(null); // Limpiamos los datos del personaje al cambiar la opción del dropdown
   };
