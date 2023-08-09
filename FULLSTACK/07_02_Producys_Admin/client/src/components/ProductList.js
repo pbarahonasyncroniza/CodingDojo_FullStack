@@ -55,10 +55,16 @@ const ProductList = () => {
     <div>
       <h2>Lista de Productos</h2>
       <ul className="list-group">
+
         {productList.map((product) => (
+
           <li key={product._id} className="list-group-item">
+            
+            
             <strong>{product.title}</strong> - ${product.price}
             <p>{product.description}</p>
+
+            
             <button className="btn btn-danger ms-2" onClick={() => handleDelete(product._id)}>
               Eliminar
             </button>
@@ -68,7 +74,7 @@ const ProductList = () => {
             onClick={() => handleEditProduct(product)}>Editar</Link>
             
             <Link to={`/${product._id}`} className="btn btn-primary ms-2">
-              Ver Detalle
+              Ver Detalles
             </Link>
           </li>
         ))}

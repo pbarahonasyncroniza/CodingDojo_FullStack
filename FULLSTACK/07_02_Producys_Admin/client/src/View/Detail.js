@@ -49,7 +49,7 @@ import axios from "axios"
                     <button 
                     onClick={handleShowDetails} 
                     type="submit" 
-                    className="btn btn-primary">Ver Detalle</button>
+                    className="btn btn-primary">Ver Detalles</button>
                 )}
             </div>
         )

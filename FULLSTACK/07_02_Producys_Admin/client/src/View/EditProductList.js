@@ -7,7 +7,7 @@ import { Link } from "react-router-dom";
 
 const EditProductList = () => {
   //1 states and variables
-  //-----------------------------------------------------------------------------
+  //--------------------------------------------------------------------------------------------------
   
   const { id } =useParams(); // obtener la ID del producto desde la URL
   const navigate = useNavigate(); // se puede ingresar a la historia de la navegacion
@@ -20,7 +20,7 @@ const EditProductList = () => {
   });
 
   //3 llamadas a la API
-  //---------------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------
     useEffect(()=> {
         const fetchProduct = async () =>{
             try{
@@ -37,7 +37,7 @@ const EditProductList = () => {
 
 
   //2 Handlers
-  //--------------------------------------------------------------------
+  //-------------------------------------------------------------------------------------------------
   const handleChange = (e) => {
     const { name, value } = e.target;
     setEditedProduct((prevProduct) => ({
@@ -61,7 +61,7 @@ const EditProductList = () => {
   if (!product) return <p>Cargando...</p>
 
   //3 JSX
-  //---------------------------------------------------------------------
+  //---------------------------------------------------------------------------------------------------
   return (
     <form onSubmit={handleSubmit}>
       <h3>Editar Producto</h3>
