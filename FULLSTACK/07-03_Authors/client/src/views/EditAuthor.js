@@ -37,7 +37,7 @@ import axios from "axios";
                 fetchAuthor();
             }, []);
 
-        //3) HANDLE 
+        //3) HANDLERS
         //------------------------------------------------------------------------------------------
 
         const handleUpdate = async (updatedAuthor) => {

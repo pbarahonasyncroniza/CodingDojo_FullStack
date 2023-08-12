@@ -72,31 +72,34 @@ import { Link } from "react-router-dom"
     }, []);
 
     //3 AUX FUNCTIONS
-    //-------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------
 
     if (loading) return <p>Loading...</p>;
     if (error) return <p>Error: {error}</p>;
 
+
+
+
+        //4  JSX
+        //---------------------------------------------------------------------------------------------------
     return (
         <div className="container mt-4 mb-4 pb-4 w-50 bg-dark-subtle"   >
 
             <h2 className="mt-3">List of Authors</h2>
-
+            {/*----------------------------------------------------------------------------------------------  */}
 
             <Link to="/new" className="row mb-3" >
                 <button className="btn btn-info fs-6 text-center w-25 mt-2 ms-2">Add New Author here</button>
             </Link>
 
             <h2 className="fs-6 mb-3 ms-3 text-start" >We have quotes by</h2>
-
+            {/* -----------------------------Headers -------------------------------------------------------- */}
             <ul className="list-group mt-3">
                 <li className="list-group-item d-flex justify-content-betwen align-items-center bg-light">
                     <span className="fs-5 me-auto font-weight-bolt">AUTHOR NAME</span>
                     <span className="fs-5 font-weight-bold me-4">ACTIONS</span>
-
                 </li>
-
-
+            {/* ------------------------------List Authors---------------------------------------------------- */}
 
                 {authors.map((author) => (
                     <li className="list-group-item d-flex justify-content-between align-items-center" key={author._id}>
@@ -105,11 +108,11 @@ import { Link } from "react-router-dom"
                         <span className="fs-6 me-auto">
                             {author.first_name} <strong >{author.last_name}</strong>
                         </span>
-        {/*-------------------------------------------------------edit button-----------------------------  */}
+            {/*-------------------------------------------------------edit button-----------------------------  */}
                     <div className="d-flex align-items-center">
                             <button className="btn btn-info sm-2" onClick={()=>handlerEditAuthor(author._id)}>Edit</button>
                  
-        {/*---------------------- --------------------------------delete Button--------------------------- */}
+            {/*---------------------- --------------------------------delete Button--------------------------- */}
                  
                         <button className="btn btn-danger ms-2" onClick={()=>handleDeleteAuthor(author._id)}
                         >Delete</button>

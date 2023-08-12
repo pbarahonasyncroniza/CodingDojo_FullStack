@@ -1,5 +1,5 @@
 import {useState} from "react"
-import { Navigate, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import axios from "axios"
 
     const CreateAuthors = () => {
@@ -30,10 +30,11 @@ import axios from "axios"
             try{
                 await axios.post("http://localhost:8000/authors",authorCreate)
 
-            setAuthorCreate ({
-            first_name :"",
-            last_name:""
-        })
+                    setAuthorCreate ({
+                    first_name :"",
+                    last_name:""
+                    
+                    })
 
             } 
                 catch (error){

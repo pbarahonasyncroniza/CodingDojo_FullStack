@@ -1,0 +1,35 @@
+# Logs
+*.log
+
+# Runtime data
+pids/
+*.pid
+*.seed
+
+# Node modules
+node_modules/
+
+# IDEs and editors
+.vscode/
+
+# dotenv environment variables files
+.env
+.env.test
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Recycle Bin used on file shares
+$RECYCLE.BIN/
+
+# VS Code directories
+.vscode/
+
+# Windows
+[Dd]esktop.ini
+[Oo]bjects
+[Ll]nk/
+
+# MongoDB
+mongodump/
