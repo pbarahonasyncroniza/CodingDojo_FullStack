@@ -11,7 +11,6 @@ const LoginUSer = (props) => {
 
     const changeHandler = (e) => {
         let new_data = {
-
             ...data,
             [e.target.name]: e.target.value
         }

@@ -36,9 +36,7 @@ import { Link } from "react-router-dom"
 
         }
 
-        const handlerViewPirate = (pirateId) => {
-            navigate(`/edit/${pirateId}` )
-        }
+      
 
 
         const handleAddPirate = (e) => {
