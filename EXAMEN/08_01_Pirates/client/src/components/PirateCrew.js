@@ -2,6 +2,8 @@ import React, {useState, useEffect} from "react"
 import axios from "axios"
 import { useNavigate } from "react-router-dom"
 import { Link } from "react-router-dom"
+import LoginUSer from "../components/UserLogin";
+import { baseURL } from "../config";
 
 
 
@@ -49,7 +51,7 @@ import { Link } from "react-router-dom"
         useEffect(()=>{
             const fetchPirates = async () => {
                 try{
-                    const response = await axios.get("http://localhost:8000/pirates");
+                    const response = await axios.get(`${baseURL}/pirates`);
                     console.log(response)
                     if(response.data && Array.isArray(response.data.data)) {  
                         setPirates(response.data.data) 
@@ -93,7 +95,7 @@ import { Link } from "react-router-dom"
                                                 <div className="col-12">
                                                 <div className="mb-2 font-weight-bold display-6">{pirate.name}</div>
                                                 <div className="d-flex justify-content-center">
-                                                    <button className="btn btn-primary me-2" onClick={() => handlerViewPirate(pirate._id)}>View Pirate</button>
+                                                    {/* <button className="btn btn-primary me-2" onClick={() => handlerViewPirate(pirate._id)}>View Pirate</button> */}
                                                     <button className="btn btn-danger" onClick={() => handlerDeletePirate(pirate._id)}>Walk the Plank</button>
                                                 </div>
                                                 </div>

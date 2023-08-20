@@ -4,6 +4,7 @@ import React, { useMemo } from "react";
 import axios from "axios";
 
 const Completed = React.memo((props) => {
+    
     const { tasks, setTasks, triggerUpdate } = props;
 
     const handleDeleteTask = async (taskId) => {

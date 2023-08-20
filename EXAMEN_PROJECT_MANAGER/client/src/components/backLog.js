@@ -9,7 +9,7 @@ const BackLog = (props) => {
 
 // PROPS & VARIABLES
 //---------------------------------------------------------------------------------------
-    const { tasks, setTasks,triggerUpdate } = props; // Usamos desestructuración aquí para extraer tasks y setTasks de props
+    const { tasks, setTasks,triggerUpdate } = props ; // Usamos desestructuración aquí para extraer tasks y setTasks de props
    
     
 //HANDLERS

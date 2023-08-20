@@ -3,8 +3,10 @@ import { useState} from "react"
 const UserRegister  = (props) => {
 
     const [data, setData] = useState({})
+    const [errors, setErrors] = useState({})
 
-    const createUser = () => {
+    const createUser = (e) => {
+        
 
     }
 
