@@ -26,7 +26,7 @@ const Model3D = () => {
     
         // IFC loader 
         const ifcLoader = new IFCLoader();
-        ifcLoader.ifcManager.setWasmPath("/public/wasm/");
+        ifcLoader.ifcManager.setWasmPath("wasm/");
         ifcLoader.load(ifcFile, (ifcModel) => {
             scene.add(ifcModel);
         });
