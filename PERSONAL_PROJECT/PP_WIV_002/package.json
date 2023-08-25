@@ -5,7 +5,8 @@
   "type":"module",
   "main": "index.js",
   "scripts": {
-    "build" : "rollup -c"
+    "build" : "rollup -c",
+    "watch" :" rolluo -c -w"
   },
   "keywords": [],
   "author": "",

@@ -10,7 +10,7 @@
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "three": "^0.135.0",
-    "web-ifc-viewer": "^1.0.218",
+    "web-ifc-viewer": "^1.0.216",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
