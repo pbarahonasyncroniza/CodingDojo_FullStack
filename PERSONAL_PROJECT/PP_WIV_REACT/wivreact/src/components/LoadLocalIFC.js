@@ -34,31 +34,33 @@ const LoadLocalIFC = () => {
       viewer.IFC.selector.pickIfcItem();
   
       window.onclick = async () => {
-          const found = await viewer.IFC.selector.pickIfcItem();
+        const found = await viewer.IFC.selector.pickIfcItem();
+        
+        if (found) {
           const result = await viewer.IFC.loader.ifcManager.getTypeProperties(found.modelID, found.id);
           const project = await viewer.IFC.loader.ifcManager.getSpatialStructure(found.modelID, found.id);
           console.log(result);
           console.log(project);
-      //---------------------------------------------------------------------------------------------   
-      const dataToSave = {
-        properties: result,
-        spatialStructure: project,
-      };
-
-      // Convertir a cadena JSON
-      const jsonData = JSON.stringify(dataToSave, null, 2);
-
-      // Crear un Blob y un enlace de descarga
-      const blob = new Blob([jsonData], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = "ifc_data.json";
-      link.click();
-      URL.revokeObjectURL(url);
-
       
+          const dataToSave = {
+            properties: result,
+            spatialStructure: project,
+          };
+      
+          // Convertir a cadena JSON
+          const jsonData = JSON.stringify(dataToSave, null, 2);
+      
+          // Crear un Blob y un enlace de descarga
+          const blob = new Blob([jsonData], { type: "application/json" });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = "ifc_data.json";
+          link.click();
+          URL.revokeObjectURL(url);
+        }
       };
+      
    };
 
 
