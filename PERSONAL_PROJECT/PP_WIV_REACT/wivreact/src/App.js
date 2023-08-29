@@ -1,10 +1,16 @@
 import React from 'react';
-import IFCViewerComponent from './components/IFCviewerComponent';
+import  { Button, Container, container} from "@mui/material"
+import LoadLocalIFC from './components/LoadLocalIFC';
+// import Header from './components/Header';
+
 
 function App() {
   return (
     <div className="App">
-      <IFCViewerComponent modelUrl="./01prueba.ifc" />
+      <Container>
+        <Button variant='contained' color="success" mt-5>Import</Button>
+      <LoadLocalIFC  />
+      </Container>
     </div>
   );
 }
