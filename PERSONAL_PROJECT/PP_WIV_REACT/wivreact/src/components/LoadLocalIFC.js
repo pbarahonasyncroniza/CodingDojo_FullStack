@@ -1,111 +1,147 @@
 import React, { Fragment, useEffect, createRef, useRef, useState } from "react";
 import { IfcViewerAPI } from "web-ifc-viewer";
-import Dropzone from "react-dropzone";
-import { IconButton } from "@material-ui/core";
-import FolderOpenOutlinedIcon from "@material-ui/icons/FolderOpenOutlined";
-import AddBoxIcon from '@mui/icons-material/AddBox';
-import { Loader } from "three";
-import { IfcProperties } from "web-ifc-viewer/dist/components/ifc/ifc-properties";
+import  { Button, Grid, Paper} from "@mui/material"
 
 
 
 const LoadLocalIFC = () => {
-  const dropzoneRef = createRef();
+  
   const viewerRef = useRef();
+  const [sectionData, setSectionData ] = useState({});
+  const fileInputRef = useRef(null);
+
   
     useEffect(() => {
 
     const container = document.getElementById("viewer-container");
+        const viewer = new IfcViewerAPI({ container });
     
-    
-    const viewer = new IfcViewerAPI({ container });
-    viewer.addAxes();
-    viewer.addGrid();
-
   // Wasm Files Path
-  
-    viewer.IFC.setWasmPath("../../");
-    viewerRef.current = viewer;
-    
-
-    // Onclick event 
+  //-------------------------------------------------------------------------------------------------
+        viewer.IFC.setWasmPath("../../");
+        viewerRef.current = viewer;
+       
       //---------------------------------------------------------------------------------------------
-    window.onclick = async () => {
-      viewer.IFC.selector.pickIfcItem();
-  
-      window.onclick = async () => {
-        const found = await viewer.IFC.selector.pickIfcItem();
+      // Onclick event method
+      //---------------------------------------------------------------------------------------------
+        window.onclick = async () => {
+          viewer.IFC.selector.pickIfcItem();
+          
+          window.onclick = async () => {
+            const found = await viewer.IFC.selector.pickIfcItem();
+            
+            if (found) {
+              const result = await viewer.IFC.loader.ifcManager.getItemProperties(found.modelID, found.id);
+              const result1 = await viewer.IFC.loader.ifcManager.getIfcType(found.modelID, found.id);
+              
+              console.log(result);
+              console.log(result1);
+             
+        //-------------------------------------------------------------------------------------------
+        //Get Properties from IFC model 
+        //-------------------------------------------------------------------------------------------      
+              setSectionData({
+                
+                ExpressID:result.expressID,
+                name:result.Name.value,
+                ObjectType:result.ObjectType.value,
+                Tag:result.Tag.value,
+                IfcCategory:result1
+              })
+            }
+          }; 
+        };
         
-        if (found) {
-          const result = await viewer.IFC.loader.ifcManager.getTypeProperties(found.modelID, found.id);
-          const project = await viewer.IFC.loader.ifcManager.getSpatialStructure(found.modelID, found.id);
-          console.log(result);
-          console.log(project);
+      }, []);
+
+
+      //---------------------------------------------------------------------------------------------
+      //HANDLERS
+      //---------------------------------------------------------------------------------------------
       
-          const dataToSave = {
-            properties: result,
-            spatialStructure: project,
-          };
-      
-          // Convertir a cadena JSON
-          const jsonData = JSON.stringify(dataToSave, null, 2);
-      
-          // Crear un Blob y un enlace de descarga
-          const blob = new Blob([jsonData], { type: "application/json" });
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = "ifc_data.json";
-          link.click();
-          URL.revokeObjectURL(url);
+      const handleFileChange = async (event) => {
+        const selectedFile = event.target.files[0];
+        if (selectedFile) {
+          // Realiza la carga del archivo
+          try {
+            const model = await viewerRef.current.IFC.loadIfc(selectedFile, true);
+            // console.log("Model loaded:", model);
+            
+            // Obtener la estructura espacial
+            const spatialStructure = await viewerRef.current.IFC.getSpatialStructure(model.modelID);
+            console.log("Spatial Structure:", spatialStructure);
+            
+          } catch (error) {
+            console.log("Error loading model:", error);
+          }
         }
       };
       
-   };
+        
 
-
-    }, []);
-
-
-
-
-
-      const onDrop = (files) => {
-        viewerRef.current.IFC.loadIfc(files[0], true);
-      };
-      const handleClickOpen = () => {
-        dropzoneRef.current.open();
-
+        const handleFileUpload = () => {
+          fileInputRef.current.click();
+        };
     
+
       
 
-  };
-
-  return (
+    //-----------------------------------------------------------------------------------------------
+    //JSX
+    //-----------------------------------------------------------------------------------------------
+    return (
+            
     <Fragment>
-      <aside style={{ width: 50 }}>
-        <IconButton onClick={handleClickOpen}>
-          <AddBoxIcon />
-        </IconButton> 
-      </aside>
-      <Dropzone ref={dropzoneRef} onDrop={onDrop}>
-        {({ getRootProps, getInputProps }) => (
-          <div {...getRootProps({ className: "dropzone" })}>
-            <input {...getInputProps()} />
-          </div>
-        )}
-        
-      </Dropzone>
-      <div
-        id="viewer-container"
-        style={{
-          position: "relative",
-          height: "60vh",
-          width: "60vw",
-        }}
-      ></div>
-    </Fragment>
-  );
-};
+      <input
+        type="file"
+        style={{ display: "none" }}
+        ref={fileInputRef}
+        onChange={handleFileChange}
+      />
+       <Button
+        onClick={handleFileUpload}
+        variant="contained"
+        color="primary"
+        style={{ marginTop: "1rem" }}
+      >
+        Load File
+      </Button>
+        <Grid container spacing={4} style={{ width: "100%", height: "100vh" }}>
+            {/* Metadatos (Izquierda) */}
+            <Grid 
+            item 
+            xl={3}
+          >
 
-export default LoadLocalIFC;
+          <Paper elevation={1} style={{ padding: "1rem" }}>
+            {sectionData && (
+              <div>
+                <h3>Name: {sectionData.name}</h3>
+                <p>IFC Category: {sectionData.IfcCategory}</p>
+                <p>ExpressId: {sectionData.ExpressID}</p>
+                <p>ObjectType: {sectionData.ObjectType}</p>
+                <p>Tag: {sectionData.Tag}</p>
+              </div>
+            )}
+          </Paper>
+        </Grid>
+
+          {/* Contenedor de visualización (Derecha) */}
+          <Grid item  xl={9} >
+            <div
+              id="viewer-container"
+              // style={{
+              //   position: "relative",
+              //   height: "50vh",
+              //   width: "100%",
+              // }}
+            ></div>
+          </Grid>
+        </Grid>
+     
+             
+      </Fragment>
+          );
+        };
+
+        export default LoadLocalIFC;

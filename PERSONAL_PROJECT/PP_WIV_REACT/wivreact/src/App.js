@@ -1,15 +1,16 @@
 import React from 'react';
-import  { Button, Container, container} from "@mui/material"
+import  { Button, Container} from "@mui/material"
 import LoadLocalIFC from './components/LoadLocalIFC';
-// import Header from './components/Header';
+import NestedList from './components/NestedList';
 
 
 function App() {
   return (
     <div className="App">
       <Container>
-        <Button variant='contained' color="success" mt-5>Import</Button>
-      <LoadLocalIFC  />
+        
+      <LoadLocalIFC  /> 
+      <NestedList />
       </Container>
     </div>
   );
