@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, createRef, useRef, useState } from "react";
 import { IfcViewerAPI } from "web-ifc-viewer";
+import IfcTreeItem from "./IfctreeItem";
 import  { Button, Grid, Paper} from "@mui/material"
 
 
@@ -8,6 +9,7 @@ const LoadLocalIFC = () => {
   
   const viewerRef = useRef();
   const [sectionData, setSectionData ] = useState({});
+  const [treeData, setTreeData ] = useState(null);
   const fileInputRef = useRef(null);
 
   
@@ -32,10 +34,10 @@ const LoadLocalIFC = () => {
             
             if (found) {
               const result = await viewer.IFC.loader.ifcManager.getItemProperties(found.modelID, found.id);
-              const result1 = await viewer.IFC.loader.ifcManager.getIfcType(found.modelID, found.id);
+              // const result1 = await viewer.IFC.loader.ifcManager.getIfcType(found.modelID, found.id);
               
               console.log(result);
-              console.log(result1);
+              // console.log(result1);
              
         //-------------------------------------------------------------------------------------------
         //Get Properties from IFC model 
@@ -46,7 +48,7 @@ const LoadLocalIFC = () => {
                 name:result.Name.value,
                 ObjectType:result.ObjectType.value,
                 Tag:result.Tag.value,
-                IfcCategory:result1
+                // IfcCategory:result1
               })
             }
           }; 
@@ -69,7 +71,8 @@ const LoadLocalIFC = () => {
             
             // Obtener la estructura espacial
             const spatialStructure = await viewerRef.current.IFC.getSpatialStructure(model.modelID);
-            console.log("Spatial Structure:", spatialStructure);
+            setTreeData(spatialStructure)
+            console.log(spatialStructure);
             
           } catch (error) {
             console.log("Error loading model:", error);
@@ -122,6 +125,9 @@ const LoadLocalIFC = () => {
                 <p>ObjectType: {sectionData.ObjectType}</p>
                 <p>Tag: {sectionData.Tag}</p>
               </div>
+          
+
+
             )}
           </Paper>
         </Grid>
@@ -136,6 +142,8 @@ const LoadLocalIFC = () => {
               //   width: "100%",
               // }}
             ></div>
+            {treeData && <IfcTreeItem node={treeData} />}
+            
           </Grid>
         </Grid>
      
