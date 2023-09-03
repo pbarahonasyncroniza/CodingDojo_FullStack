@@ -1,22 +1,25 @@
-import React, { Fragment, useEffect, createRef, useRef, useState } from "react";
+import React, { useEffect, useContext, useRef, useState } from "react";
 import { IfcViewerAPI } from "web-ifc-viewer";
 import IfcTreeItem from "./IfctreeItem";
-import  { Button, Grid, Paper} from "@mui/material"
-
-
+import Typography from '@mui/material/Typography'
+import  { Button, Grid,Container, Divider,Box,Card, CardContent} from "@mui/material"
+import { Color } from "three";
+// import { useFileUpload } from '../components/FileUploadContext'
+import { useDimension } from '../components/DimesionControl';
 
 const LoadLocalIFC = () => {
-  
+  // const { handleFileChanges, viewerRef: contextViewerRef, setViewerRef: setContextViewerRef } = useFileUpload(); // Cambio aquí
+  const { isDimensionActive, isPreviewActive } = useDimension()
   const viewerRef = useRef();
-  const [sectionData, setSectionData ] = useState({});
+  const [sectionData, setSectionData] = useState ()
   const [treeData, setTreeData ] = useState(null);
   const fileInputRef = useRef(null);
-
+ 
   
     useEffect(() => {
 
     const container = document.getElementById("viewer-container");
-        const viewer = new IfcViewerAPI({ container });
+        const viewer = new IfcViewerAPI({ container, backgroundColor: new Color()});
     
   // Wasm Files Path
   //-------------------------------------------------------------------------------------------------
@@ -34,31 +37,69 @@ const LoadLocalIFC = () => {
             
             if (found) {
               const result = await viewer.IFC.loader.ifcManager.getItemProperties(found.modelID, found.id);
-              // const result1 = await viewer.IFC.loader.ifcManager.getIfcType(found.modelID, found.id);
+              const result1 = await viewer.IFC.loader.ifcManager.getIfcType(found.modelID, found.id);
               
               console.log(result);
-              // console.log(result1);
+              console.log(result1);
              
-        //-------------------------------------------------------------------------------------------
-        //Get Properties from IFC model 
-        //-------------------------------------------------------------------------------------------      
-              setSectionData({
+              
+          //-------------------------------------------------------------------------------------------
+          //Get Properties from IFC model 
+          //-------------------------------------------------------------------------------------------      
+          if (result && result.Name && result.ObjectType && result.Tag) {    
+          setSectionData({
                 
                 ExpressID:result.expressID,
                 name:result.Name.value,
                 ObjectType:result.ObjectType.value,
                 Tag:result.Tag.value,
-                // IfcCategory:result1
+                IfcCategory:result1
               })
             }
+            }
           }; 
+
+
+          //-----------------------------------------------------------------------------------------
+            // DIMENSIONS
+          //-----------------------------------------------------------------------------------------  
+           
+          
+            viewer.dimensions.active = true;
+            viewer.dimensions.previewActive = true;
+
+            window.ondblclick = ()=>{
+              const newDimension = viewer.dimensions.create();
+              if (newDimension) {
+                newDimension.style.backgroundColor ="red"
+
+              }
+            }
+
+            window.onkeydown = (e) =>{
+              if(e.code === "delete") {
+                viewer.dimensions.delete()
+              }
+            
+          
+          }
+          // if (isDimensionActive) {
+          //   viewerRef.dimensions.active = true;
+          // }
+          // if (isPreviewActive) {
+          //   viewerRef.dimensions.previewActive = true;
+          // }
+
+            
+
+
         };
         
       }, []);
 
 
       //---------------------------------------------------------------------------------------------
-      //HANDLERS
+      //HANDLERS - CARGA DEL MODELO - CARGA DE SPACIALSTRUCTURE
       //---------------------------------------------------------------------------------------------
       
       const handleFileChange = async (event) => {
@@ -80,9 +121,9 @@ const LoadLocalIFC = () => {
         }
       };
       
-        
-
         const handleFileUpload = () => {
+
+
           fileInputRef.current.click();
         };
     
@@ -94,61 +135,70 @@ const LoadLocalIFC = () => {
     //-----------------------------------------------------------------------------------------------
     return (
             
-    <Fragment>
+<Container maxWidth sx={{backgroundColor:"#EFEBEB", mt:6, ml:0, mr:0}}>
+<Box>
+              <Button
+                onClick={handleFileUpload}
+                variant="contained"
+                // color="success"
+                sx={{marginLeft: 10 ,mb:2,marginTop:"25px" }}
+              >Load File</Button> 
+            </Box>
+
       <input
         type="file"
         style={{ display: "none" }}
         ref={fileInputRef}
         onChange={handleFileChange}
       />
-       <Button
-        onClick={handleFileUpload}
-        variant="contained"
-        color="primary"
-        style={{ marginTop: "1rem" }}
-      >
-        Load File
-      </Button>
-        <Grid container spacing={4} style={{ width: "100%", height: "100vh" }}>
-            {/* Metadatos (Izquierda) */}
-            <Grid 
-            item 
-            xl={3}
-          >
+      
+      <Box  >
+        
+        <Grid container spacing={3} sx={{marginLeft:10}}>
+            <Grid item xl={2}>
+              <Card sx={{mt:2}}>
+                <CardContent>
+                {sectionData && (
+                 <Box>
+                    <Typography sx={{ fontSize:18, color:"black"}} >PROPIEDADES</Typography>
+                    <Divider />
+                    
+                    <Typography sx={{ fontSize:14, color:"blue", fontStyle:"italic"}} >Name: {sectionData.name}</Typography>
+                    <Divider />
+                    <Typography sx={{ fontSize:14}}>IFC Category: {sectionData.IfcCategory}</Typography>
+                    <Divider />
+                    <Typography sx={{ fontSize:14}}>ExpressId: {sectionData.ExpressID}</Typography>
+                    <Divider />
+                    <Typography sx={{ fontSize:14}}>ObjectType: {sectionData.ObjectType}</Typography>
+                    <Divider />
+                    <Typography sx={{ fontSize:14}}>Tag: {sectionData.Tag}</Typography>
+                </Box>
+                )}
+                </CardContent>
+              </Card>
+            </Grid> 
 
-          <Paper elevation={1} style={{ padding: "1rem" }}>
-            {sectionData && (
-              <div>
-                <h3>Name: {sectionData.name}</h3>
-                <p>IFC Category: {sectionData.IfcCategory}</p>
-                <p>ExpressId: {sectionData.ExpressID}</p>
-                <p>ObjectType: {sectionData.ObjectType}</p>
-                <p>Tag: {sectionData.Tag}</p>
-              </div>
+          {/* Contenedor de visualización (Derecha) */}
+          <Grid item xl={7} sx={{mt:2, mb:2}} >
+            <div
+              id="viewer-container"
+              sx={{backgroundColor: "blue"
+               
+              }}
+            ></div>
+          </Grid>
+          <Grid item xl={3}>    
+          <Typography sx={{ fontSize:18}}>SPACIAL TREE</Typography>
+            <div style={{height:"500px", width :"250px", overflowY: "scroll", marginLeft:"10px"}} >{treeData && <IfcTreeItem node={treeData} sx={{fontSize:15, marginRight:10}}/>}</div>
+          </Grid>  
           
 
 
-            )}
-          </Paper>
         </Grid>
 
-          {/* Contenedor de visualización (Derecha) */}
-          <Grid item  xl={9} >
-            <div
-              id="viewer-container"
-              // style={{
-              //   position: "relative",
-              //   height: "50vh",
-              //   width: "100%",
-              // }}
-            ></div>
-            {treeData && <IfcTreeItem node={treeData} />}
-            
-          </Grid>
-        </Grid>
-     
+      </Box>
              
-      </Fragment>
+      </Container>
           );
         };
 

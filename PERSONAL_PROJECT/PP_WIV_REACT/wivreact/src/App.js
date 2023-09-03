@@ -1,19 +1,34 @@
 import React from 'react';
-import  { Button, Container} from "@mui/material"
+import { useRef } from 'react';
+import { useState , useContext} from 'react';
 import LoadLocalIFC from './components/LoadLocalIFC';
-import IfcTreeItem from './components/IfctreeItem';
+import MiniDrawer from "./components/Drawer"
+// import  {FileUploadProvider} from "./components/FileUploadContext"
+import { DimensionProvider } from './components/DimesionControl'
+
+
 
 
 
 function App() {
+
+  const viewerRef = useRef(null);
+
   return (
-    <div className="App">
-      <Container>
-        
-      <LoadLocalIFC  /> 
-      {/* <IfcTreeItem /> */}
-      </Container>
-    </div>
+    
+    
+    <DimensionProvider viewerRef={viewerRef}> 
+        <div className="App">
+          
+          <LoadLocalIFC viewerRef={viewerRef}  />
+          <MiniDrawer />
+         
+      </div>
+    </DimensionProvider>
+      // </FileUploadProvider>
+      
+ 
+  
   );
 }
 
