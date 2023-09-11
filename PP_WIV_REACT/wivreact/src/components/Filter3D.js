@@ -87,7 +87,7 @@ const Filter3D = ({ filters, onFilterChange, viewer }) => {
             // console.log("categoria", category, isChecked)
             // console.log(subsets)
   };
-        console.log(filters)
+        // console.log(filters)
 
     return(
         <div>

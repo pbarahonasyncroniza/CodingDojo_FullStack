@@ -54,6 +54,10 @@ const OpenModal = ({ isOpen, handleClose, sectionData }) => {
 						<Typography sx={{ fontSize: 14 }}>
 							Tag: {sectionData.Tag}
 						</Typography>
+						<Divider />
+						<Typography sx={{ fontSize: 14 }}>
+							GlobalID: {sectionData.GlobalId}
+						</Typography>
 					</div>
 				)}
 			</Paper>
