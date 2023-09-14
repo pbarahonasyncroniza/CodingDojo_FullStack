@@ -1,24 +1,26 @@
-import React, { useEffect, useContext, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { IfcViewerAPI } from "web-ifc-viewer";
 import IfcTreeItem from "./IfctreeItem";
 import Typography from '@mui/material/Typography'
-import  { Button, Grid,Container, Divider,Box,Card, CardContent} from "@mui/material"
+import  { Button, Grid,Container,Box,IconButton} from "@mui/material"
+import StraightenIcon from '@mui/icons-material/Straighten';
 import { Color } from "three";
-// import { useFileUpload } from '../components/FileUploadContext'
-import { useDimension } from '../components/DimesionControl';
+
+import OpenModal from "../components/OpenModal";
 
 const LoadLocalIFC = () => {
-  // const { handleFileChanges, viewerRef: contextViewerRef, setViewerRef: setContextViewerRef } = useFileUpload(); // Cambio aquí
-  const { isDimensionActive, isPreviewActive } = useDimension()
+ 
+  
   const viewerRef = useRef();
   const [sectionData, setSectionData] = useState ()
   const [treeData, setTreeData ] = useState(null);
   const fileInputRef = useRef(null);
- 
+  const [modalOpen, setModalOpen] = useState(false);
+  const [isDimensionActive, setDimensionActive] = useState(false);
   
     useEffect(() => {
 
-    const container = document.getElementById("viewer-container");
+  const container = document.getElementById("viewer-container");
         const viewer = new IfcViewerAPI({ container, backgroundColor: new Color()});
     
   // Wasm Files Path
@@ -29,15 +31,16 @@ const LoadLocalIFC = () => {
       //---------------------------------------------------------------------------------------------
       // Onclick event method
       //---------------------------------------------------------------------------------------------
-        window.onclick = async () => {
+        window.ondblclick = async () => {
           viewer.IFC.selector.pickIfcItem();
           
-          window.onclick = async () => {
+          window.ondblclick = async () => {
             const found = await viewer.IFC.selector.pickIfcItem();
             
             if (found) {
               const result = await viewer.IFC.loader.ifcManager.getItemProperties(found.modelID, found.id);
               const result1 = await viewer.IFC.loader.ifcManager.getIfcType(found.modelID, found.id);
+              setModalOpen(true)
               
               console.log(result);
               console.log(result1);
@@ -65,34 +68,27 @@ const LoadLocalIFC = () => {
           //-----------------------------------------------------------------------------------------  
            
           
-            viewer.dimensions.active = true;
-            viewer.dimensions.previewActive = true;
+    
+        
 
-            window.ondblclick = ()=>{
-              const newDimension = viewer.dimensions.create();
-              if (newDimension) {
-                newDimension.style.backgroundColor ="red"
+            // viewer.dimensions.active = true;
+            // viewer.dimensions.previewActive = true;
 
-              }
-            }
+          //   window.ondblclick = ()=>{
+          //     const newDimension = viewer.dimensions.create();
+          //     if (newDimension) {
+          //       newDimension.style.backgroundColor ="red"
 
-            window.onkeydown = (e) =>{
-              if(e.code === "delete") {
-                viewer.dimensions.delete()
-              }
+          //     }
+          //   }
+
+          //   window.onkeydown = (e) =>{
+          //     if(e.code === "delete") {
+          //       viewer.dimensions.delete()
+          //     }
             
+          // }
           
-          }
-          // if (isDimensionActive) {
-          //   viewerRef.dimensions.active = true;
-          // }
-          // if (isPreviewActive) {
-          //   viewerRef.dimensions.previewActive = true;
-          // }
-
-            
-
-
         };
         
       }, []);
@@ -102,18 +98,37 @@ const LoadLocalIFC = () => {
       //HANDLERS - CARGA DEL MODELO - CARGA DE SPACIALSTRUCTURE
       //---------------------------------------------------------------------------------------------
       
+      const handleDimensionClick = () => {
+        const viewer = viewerRef.current;
+        if (!isDimensionActive) {
+          viewer.dimensions.active = true;
+          viewer.dimensions.previewActive = true;
+        } else {
+          viewer.dimensions.active = false;
+          viewer.dimensions.previewActive = false;
+        }
+        setDimensionActive(!isDimensionActive);
+      };
+
+
+
+
+
+
+
       const handleFileChange = async (event) => {
         const selectedFile = event.target.files[0];
         if (selectedFile) {
           // Realiza la carga del archivo
           try {
             const model = await viewerRef.current.IFC.loadIfc(selectedFile, true);
-            // console.log("Model loaded:", model);
+            console.log("Model loaded:", model);
+            console.log("Model name:", selectedFile.name);
             
             // Obtener la estructura espacial
             const spatialStructure = await viewerRef.current.IFC.getSpatialStructure(model.modelID);
             setTreeData(spatialStructure)
-            console.log(spatialStructure);
+            // console.log(spatialStructure);
             
           } catch (error) {
             console.log("Error loading model:", error);
@@ -127,7 +142,8 @@ const LoadLocalIFC = () => {
           fileInputRef.current.click();
         };
     
-
+       
+        
       
 
     //-----------------------------------------------------------------------------------------------
@@ -136,7 +152,7 @@ const LoadLocalIFC = () => {
     return (
             
 <Container maxWidth sx={{backgroundColor:"#EFEBEB", mt:6, ml:0, mr:0}}>
-<Box>
+            <Box>
               <Button
                 onClick={handleFileUpload}
                 variant="contained"
@@ -144,6 +160,10 @@ const LoadLocalIFC = () => {
                 sx={{marginLeft: 10 ,mb:2,marginTop:"25px" }}
               >Load File</Button> 
             </Box>
+  <IconButton onClick={handleDimensionClick}>
+        <StraightenIcon />
+      </IconButton>
+<OpenModal isOpen={modalOpen} handleClose={() => setModalOpen(false)} sectionData={sectionData} />
 
       <input
         type="file"
@@ -151,31 +171,12 @@ const LoadLocalIFC = () => {
         ref={fileInputRef}
         onChange={handleFileChange}
       />
-      
+    
       <Box  >
         
         <Grid container spacing={3} sx={{marginLeft:10}}>
             <Grid item xl={2}>
-              <Card sx={{mt:2}}>
-                <CardContent>
-                {sectionData && (
-                 <Box>
-                    <Typography sx={{ fontSize:18, color:"black"}} >PROPIEDADES</Typography>
-                    <Divider />
-                    
-                    <Typography sx={{ fontSize:14, color:"blue", fontStyle:"italic"}} >Name: {sectionData.name}</Typography>
-                    <Divider />
-                    <Typography sx={{ fontSize:14}}>IFC Category: {sectionData.IfcCategory}</Typography>
-                    <Divider />
-                    <Typography sx={{ fontSize:14}}>ExpressId: {sectionData.ExpressID}</Typography>
-                    <Divider />
-                    <Typography sx={{ fontSize:14}}>ObjectType: {sectionData.ObjectType}</Typography>
-                    <Divider />
-                    <Typography sx={{ fontSize:14}}>Tag: {sectionData.Tag}</Typography>
-                </Box>
-                )}
-                </CardContent>
-              </Card>
+              
             </Grid> 
 
           {/* Contenedor de visualización (Derecha) */}
@@ -197,7 +198,7 @@ const LoadLocalIFC = () => {
         </Grid>
 
       </Box>
-             
+      
       </Container>
           );
         };

@@ -18,9 +18,10 @@ import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
 import InboxIcon from '@mui/icons-material/MoveToInbox';
 import MailIcon from '@mui/icons-material/Mail';
-
+import { IfcViewerAPI } from "web-ifc-viewer";
 
 const drawerWidth = 240;
+
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -98,6 +99,24 @@ export default function MiniDrawer() {
   const handleDrawerClose = () => {
     setOpen(false);
   };
+  const [isClippingPaneSelected, setClippingPaneSelected] = React.useState(false);
+  const [viewer, setViewer] = React.useState(null)
+
+
+  const toggleClippingPlanes = () => {
+    // Suponiendo que "viewer" sea tu instancia de IfcViewerAPI
+    if (viewer) {
+      viewer.clipper.toggle();
+      if (viewer.clipper.active) {
+        setClippingPaneSelected(true);
+      } else {
+        setClippingPaneSelected(false);
+      }
+    }
+  };
+  
+
+
 
   return (
     <Box sx={{ display: 'flex' }}>
@@ -129,7 +148,7 @@ export default function MiniDrawer() {
         </DrawerHeader>
         <Divider />
         <List>
-          {['Import', 'Properties', '3DFilter', 'Dimensions'].map((text, index) => (
+          {['Model List', 'Floor Plants', '3DFilter'].map((text, index) => (
             <ListItem key={text} disablePadding sx={{ display: 'block' }}>
               <ListItemButton
                 
@@ -155,30 +174,7 @@ export default function MiniDrawer() {
           ))}
         </List>
         <Divider />
-        <List>
-          {['All mail', 'Trash', 'Spam'].map((text, index) => (
-            <ListItem key={text} disablePadding sx={{ display: 'block' }}>
-              <ListItemButton
-                sx={{
-                  minHeight: 48,
-                  justifyContent: open ? 'initial' : 'center',
-                  px: 2.5,
-                }}
-              >
-                <ListItemIcon
-                  sx={{
-                    minWidth: 0,
-                    mr: open ? 3 : 'auto',
-                    justifyContent: 'center',
-                  }}
-                >
-                  {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                </ListItemIcon>
-                <ListItemText primary={text} sx={{ opacity: open ? 1 : 0 }} />
-              </ListItemButton>
-            </ListItem>
-          ))}
-        </List>
+       
       </Drawer>
       <Box component="main" sx={{ flexGrow: 1, p: 3 }}>
         <DrawerHeader />

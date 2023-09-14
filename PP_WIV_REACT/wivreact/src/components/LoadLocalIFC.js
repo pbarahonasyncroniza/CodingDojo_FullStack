@@ -41,6 +41,11 @@ const LoadLocalIFC = () => {
   const [allPlans, setAllPlans] = useState([]);
   const [selectedLevel, setSelectedLevel] = useState(null);
   const [subsets, setSubsets] = useState({});
+  const [isClippingPaneSelected, setClippingPaneSelected] = useState(false);
+  
+
+
+
   const [filters, setFilters] = useState({
     IFCWALLSTANDARDCASE: true,
     IFCSLAB: true,
@@ -72,16 +77,22 @@ const LoadLocalIFC = () => {
     //---------------------------------------------------------------------------------------------
     // Onclick event method
     //---------------------------------------------------------------------------------------------
-    window.onmouseover =()=> viewer.IFC.selector.prePickIfcItem();
+ 
+
+
+   
+    window.onmousemove =()=> viewer.IFC.selector.prePickIfcItem();
     
-    window.ondblclick = async () => {
+    window.onclick = async () => {
       viewer.IFC.selector.pickIfcItem();
       
       
-      window.ondblclick = async () => {
+      window.onclick = async () => {
         const found = await viewer.IFC.selector.pickIfcItem();
 
-        
+        //-------------------------------------------------------------------------------------------
+				//Get Properties from IFC model
+				//-------------------------------------------------------------------------------------------
 
        
         if (found) {
@@ -94,35 +105,61 @@ const LoadLocalIFC = () => {
             found.id
           );
           
-          const result2 = await viewer.IFC.loader.ifcManager.getPropertySets(
-            found.modelID,
-            found.id
+          const result2 = await viewer.IFC.loader.ifcManager.getPropertySets(found.modelID,
+            found.id,true
           );
-
-
 
           setModalOpen(true);
 
-          console.log(result);
-          console.log(result1);
-          console.log(result2);  
+          console.log("GetItemsProperties",result);
+          console.log("GetIFcType",result1);
+          console.log("GetPropertySets",result2);  
           //-------------------------------------------------------------------------------------------
-          //Get Properties from IFC model
+          //Get Quantities
           //-------------------------------------------------------------------------------------------
-          if (result && result.Name && result.ObjectType && result.Tag) {
-            setSectionData({
-              ExpressID: result.expressID,
-              name: result.Name.value,
-              ObjectType: result.ObjectType.value,
-              Tag: result.Tag.value,
-              IfcCategory: result1,
-              GlobalID:result2.GlobalId
-            });
+        
+        const extractValue = (quantitiesArray, key, name) => {
+          // Busca en el arreglo por la clave especificada y devuelve el valor si lo encuentra
+          const item = quantitiesArray.find(quantity => quantity[key] && quantity.Name.value === name);
+          return item ? item[key].value : null;
+        };
+        
+        // Usamos el método find para buscar el objeto IfcElementQuantity dentro de result2
+        const elementQuantity = result2.find(item => item.Quantities);
+
+        let data = {
+          name: result.Name.value,
+          ExpressID: result.expressID,
+          ObjectType: result.ObjectType.value,
+          Tag: result.Tag.value,
+          IfcCategory: result1
+        }
+        
+        if (elementQuantity) {
+          // Usamos la función extractValue para obtener los valores de interés
+          const volumenValue = extractValue(elementQuantity.Quantities, 'VolumeValue', "NetVolume");
+          const areaValue = extractValue(elementQuantity.Quantities, 'AreaValue', 'NetSideArea');
+          const heightValue = extractValue(elementQuantity.Quantities, 'LengthValue', 'Height');
+          const lengthValue = extractValue(elementQuantity.Quantities, 'LengthValue', 'Length');
+          const widthValue = extractValue(elementQuantity.Quantities, 'LengthValue', 'Width');
+        
+          data = {
+            ...data,
+            Height: heightValue,
+            Length: lengthValue,
+            Width: widthValue,
+            Volumen: volumenValue,
+            Area: areaValue,
           }
         }
+
+        setSectionData(data);
+
+      }
       };
 
-    
+      
+
       //-----------------------------------------------------------------------------------------
       // DIMENSIONS
       //-----------------------------------------------------------------------------------------
@@ -146,6 +183,13 @@ const LoadLocalIFC = () => {
     };
   }, []);
 
+  
+
+
+
+
+
+
       //---------------------------------------------------------------------------------------------
       // FLOOR PLANS
       //---------------------------------------------------------------------------------------------
@@ -155,6 +199,13 @@ const LoadLocalIFC = () => {
         const viewer = viewerRef.current;
         const modelID = model.modelID;
         console.log("Model ID",modelID)
+
+        // Setup camera controls
+	      const controls = viewer.context.ifcCamera.cameraControls;
+	      controls.setPosition(7.6, 4.3, 24.8, false);
+	      controls.setTarget(-7.1, -0.3, 2.5, false);
+
+
     
         const viewerPlans= await viewer.plans.computeAllPlanViews(modelID);
         console.log("vista de planos ",viewerPlans)
@@ -179,6 +230,10 @@ const LoadLocalIFC = () => {
         }
     
         setAllPlans(collectedPlans);
+
+
+
+
     }
     
 
@@ -205,8 +260,6 @@ const LoadLocalIFC = () => {
   async function newSubsetOfType(category) {
     const ids = await getAll(category);
 
-    debugger;
-
     return viewerRef.current.IFC.loader.ifcManager.createSubset({
       modelID: 0,
       ids: ids,
@@ -219,6 +272,43 @@ const LoadLocalIFC = () => {
 async function getAll(category) {
   return viewerRef.current.IFC.loader.ifcManager.getAllItemsOfType(0, category, false);
 }
+
+
+//---------------------------------------------------------------------------------------------
+      // CLIPING PLANES
+      //---------------------------------------------------------------------------------------------
+      const toggleClippingPlanes = ()=>{
+        const viewer = viewerRef.current;
+        console.log("que muestera viewer",viewer)
+        const createPlane = viewer.clipper.createPlane();
+        console.log("Creacion de Plano",createPlane)
+       if(viewer){
+        viewer.toggleClippingPlanes();
+        if(viewer.clipper.active){
+          setClippingPaneSelected(true)
+        }else{
+          setClippingPaneSelected(false)
+        }
+
+       }
+       }
+
+       window.onkeydown =(e)=>{
+        const viewer = viewerRef.current;
+        if(e.code ==="KeyP"){
+          viewer.clipper.createPlane();
+        }
+
+       }
+
+      //  const ifcOnRightClick = async () => {
+      //   const viewer = viewerRef.current;
+      //   console.log(viewer)
+      //   if (viewer) {
+      //     viewer.clipper.createPlane();
+      //     viewer.clipper.deleteAllPlanes();
+      //   }
+      // }
 
   //---------------------------------------------------------------------------------------------
   //HANDLERS - CARGA DEL MODELO - CARGA DE SPACIALSTRUCTURE
@@ -276,11 +366,29 @@ async function getAll(category) {
   const handleLevelSelect = (expressID) =>{
     setSelectedLevel(expressID)
     const viewer = viewerRef.current;
+    if(selectedLevel){
     const viewPlans =viewer.plans.goTo(model.modelID, expressID)
-    console.log(viewPlans)
-    viewer.edges.toggle("example", true)
+    .then(viewPlans=>{
+      console.log("Funcionamiento TOGO", viewPlans)
+    })
+    .catch(error=>{
+      console.error("Error al acceder Floor", error)
+    })
+    // viewer.edges.toggle("example", true)
+    }
   }
+    const handleExitFloorPlan = () => {
+    const viewer = viewerRef.current;
+    
+    // Restablecer la vista 3D
+    const existFloorPlans=viewer.plans.exitPlanView(model.modelID);
+    console.log(existFloorPlans)
+    // viewer.render();
+    }
+
+
   
+
   //-----------------------------------------------------------------------------------------------
   //JSX
   //-----------------------------------------------------------------------------------------------
@@ -318,7 +426,25 @@ async function getAll(category) {
   }
 </Box>
 
+        <Button
+          onClick={handleExitFloorPlan}
+           variant="contained"
+          >Exit Floor Plan
+        </Button>
 {/* ------------------------------------------------------------------ */}
+    <Box>
+      <Button 
+      variant="contained"
+      key={"showPlane"}
+      onClick={()=>toggleClippingPlanes()}
+      selected={isClippingPaneSelected}
+            >Clipping Planes
+      </Button>
+      </Box>
+
+
+
+
 
       <Box>
         <Button
@@ -346,7 +472,6 @@ async function getAll(category) {
         ref={fileInputRef}
         onChange={handleFileChange}
       />
-
       <Box>
         <Grid container spacing={3} sx={{ marginLeft: 10 }}>
           <Grid item xl={2}></Grid>

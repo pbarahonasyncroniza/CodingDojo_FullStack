@@ -21,7 +21,7 @@ function App() {
         <div className="App">
           
           <LoadLocalIFC viewerRef={viewerRef}  />
-          <MiniDrawer />
+          {/* <MiniDrawer /> */}
          
       </div>
     </DimensionProvider>
